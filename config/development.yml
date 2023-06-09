@@ -1,0 +1,4 @@
+db_MYSQL:
+  host: 'localhost'
+  username: 'root'
+  password: 'mysqlroot'

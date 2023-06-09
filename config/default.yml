@@ -1,0 +1,5 @@
+db_MYSQL:
+  type: "mysql"
+  port: 3306
+  database: "baikal"
+  synchronize: true
