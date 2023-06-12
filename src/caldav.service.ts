@@ -15,14 +15,42 @@ export class CalDavService {
     await queryRunner.startTransaction();
 
     try {
+      // Create the DAV user
       await queryRunner.query(
         `INSERT INTO users (username, digesta1) VALUES (?, ?)`,
         [username, digesta1],
       );
+      // Create the DAV principal
       await queryRunner.query(
-        `INSERT INTO calendars (synctoken, components) VALUES ( 1, 'VEVENT')`,
+        `INSERT INTO principals (uri, email, displayname) VALUES (?, ?, ?)`,
+        [`principals/${username}`, username, username],
+      );
+
+      // Create the calendar
+      await queryRunner.query(
+        `INSERT INTO calendars (synctoken, components) VALUES ( 1, 'VEVENT,VTODO,VJOURNAL')`,
         [],
       );
+
+      // Create the calendar instance
+      await queryRunner.query(
+        `INSERT INTO calendarinstances (principaluri, displayname, uri, calendarid, access, description, transparent, ` +
+          `calendarcolor, timezone
+        ) VALUE
+        (
+          'principals/${username}',
+          'Default',
+          'Default',
+          (SELECT LAST_INSERT_ID()),
+          1,
+          'Default',
+          0,
+          '#FFFFFF',
+          'Europe/Paris',
+        )`,
+        [],
+      );
+
 
       await queryRunner.commitTransaction();
     } catch (err) {
