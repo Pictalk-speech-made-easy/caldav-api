@@ -35,19 +35,7 @@ export class CalDavService {
       // Create the calendar instance
       await queryRunner.query(
         `INSERT INTO calendarinstances (principaluri, displayname, uri, calendarid, access, description, transparent, ` +
-          `calendarcolor, timezone
-        ) VALUE
-        (
-          'principals/${username}',
-          'Default',
-          'Default',
-          (SELECT LAST_INSERT_ID()),
-          1,
-          'Default',
-          0,
-          '#FFFFFF',
-          'Europe/Paris',
-        )`,
+          `calendarcolor, timezone) VALUE ('principals/${username}','Default','Default',(SELECT LAST_INSERT_ID()),1,'Default',0,'#FFFFFF','Europe/Paris')`,
         [],
       );
 
