@@ -1,73 +1,65 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="200" alt="Nest Logo" /></a>
-</p>
+# CALDAV API
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+The CALDAV API is an integral part of the web application [www.pictime.org](https://www.pictime.org), designed to assist individuals facing organizational challenges. It works seamlessly with a SabreDAV server to manage user accounts and calendars, allowing for efficient organization and scheduling.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+## Table of Contents
 
-## Description
+- [Introduction](#introduction)
+- [Features](#features)
+- [Getting Started](#getting-started)
+- [Usage](#usage)
+- [Contributing](#contributing)
+- [License](#license)
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+## Introduction
 
-## Installation
+The CALDAV API is built on the NestJS framework and is specifically tailored to interact with a SabreDAV MySQL database. It provides the functionality to create and manage user accounts and calendars, helping users streamline their organization processes. Whether you're looking to integrate calendar functionality into your own application or explore the capabilities of the CALDAV API, this readme will guide you through the process.
 
-```bash
-$ npm install
-```
+## Features
 
-## Running the app
+- **User Management**: Create, update, and delete user accounts within the SabreDAV MySQL database.
+- **Calendar Management**: Efficiently manage user calendars, allowing for the creation, modification, and deletion of events.
+- **Seamless Integration**: The CALDAV API seamlessly integrates with [www.pictime.org](https://www.pictime.org) and SabreDAV to provide a unified organizational experience.
 
-```bash
-# development
-$ npm run start
+## Getting Started
 
-# watch mode
-$ npm run start:dev
+To get started with the CALDAV API, follow these steps:
 
-# production mode
-$ npm run start:prod
-```
+1. **Clone the Repository**: Clone this GitHub repository to your local machine using the following command:
 
-## Test
+   ```shell
+   git clone https://github.com/Pictalk-speech-made-easy/caldav-api.git
+   ```
 
-```bash
-# unit tests
-$ npm run test
+2. **Install Dependencies**: Navigate to the project directory and install the required dependencies using npm or yarn:
 
-# e2e tests
-$ npm run test:e2e
+   ```shell
+   cd caldav-api
+   npm install
+   ```
 
-# test coverage
-$ npm run test:cov
-```
+3. **Configuration**: Modify the configuration files to set up the connection to your SabreDAV MySQL database and adjust any other settings as needed.
 
-## Support
+4. **Start the Server**: Start the NestJS server using the following command:
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+   ```shell
+   npm run start:dev
+   ```
 
-## Stay in touch
+5. **Use the API**: You can now use the CALDAV API to interact with your SabreDAV server and manage user accounts and calendars.
 
-- Author - [Kamil Myśliwiec](https://kamilmysliwiec.com)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+## Usage
+
+For detailed API documentation and examples, refer to the API documentation or explore the codebase at [https://api.pictime.org/api#/default](https://api.pictime.org/api#/default)  
+
+## Contributing
+
+We welcome contributions from the community! If you would like to contribute to the CALDAV API project, please review our [Contribution Guidelines](CONTRIBUTING.md) for more information on how to get started.
 
 ## License
 
-Nest is [MIT licensed](LICENSE).
+This project is licensed under the GNU General Public License v3.0 - see the [LICENSE](LICENSE) file for details.
+
+---
+
+Thank you for using the CALDAV API. We hope it enhances your organizational capabilities and makes managing calendars a breeze. If you have any questions or encounter any issues, please don't hesitate to [open an issue](https://github.com/Pictalk-speech-made-easy/caldav-api/issues).
