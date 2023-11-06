@@ -11,18 +11,13 @@ import { ConfigModule } from '@nestjs/config';
 import { CalDavService } from './caldav.service';
 import { HttpModule } from '@nestjs/axios';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { typeOrmConfig } from './db_config/typeorm.config';
+import { typeOrmConfig } from './config/typeorm.config';
+import keycloakConfig from './config/keycloak.config';
 @Module({
   imports: [
     HttpModule,
-    ConfigModule.forRoot(),
-    KeycloakConnectModule.register({
-      authServerUrl: 'https://auth.picmind.org',
-      realm: 'master',
-      clientId: 'caldav-api',
-      secret: '6lIPEisLPO6pwVFX1AgN87zLC2mnjodB',
-      // Secret key of the client taken from keycloak server
-    }),
+    ConfigModule.forRoot({ load: [keycloakConfig] }),
+    KeycloakConnectModule.register(keycloakConfig()),
     TypeOrmModule.forRoot(typeOrmConfig),
   ],
   controllers: [AppController],

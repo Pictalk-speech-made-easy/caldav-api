@@ -39,7 +39,6 @@ export class CalDavService {
         [],
       );
 
-
       await queryRunner.commitTransaction();
     } catch (err) {
       // since we have errors lets rollback the changes we made
