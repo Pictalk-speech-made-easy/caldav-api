@@ -13,12 +13,16 @@ import { HttpModule } from '@nestjs/axios';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { typeOrmConfig } from './config/typeorm.config';
 import keycloakConfig from './config/keycloak.config';
+import { DavClientModule } from './dav-client/davclient.module';
+import { EventModule } from './events/event.module';
 @Module({
   imports: [
     HttpModule,
     ConfigModule.forRoot({ load: [keycloakConfig] }),
     KeycloakConnectModule.register(keycloakConfig()),
     TypeOrmModule.forRoot(typeOrmConfig),
+    DavClientModule,
+    EventModule,
   ],
   controllers: [AppController],
   providers: [
