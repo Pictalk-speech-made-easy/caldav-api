@@ -8,13 +8,14 @@ import {
 } from 'nest-keycloak-connect';
 import { APP_GUARD } from '@nestjs/core';
 import { ConfigModule } from '@nestjs/config';
-import { CalDavService } from './caldav.service';
 import { HttpModule } from '@nestjs/axios';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { typeOrmConfig } from './config/typeorm.config';
 import keycloakConfig from './config/keycloak.config';
 import { DavClientModule } from './dav-client/davclient.module';
 import { EventModule } from './events/event.module';
+import { BaikalModule } from './baikal/baikal.module';
+import { KeycloakModule } from './keycloak/keycloak.module';
 @Module({
   imports: [
     HttpModule,
@@ -23,10 +24,11 @@ import { EventModule } from './events/event.module';
     TypeOrmModule.forRoot(typeOrmConfig),
     DavClientModule,
     EventModule,
+    BaikalModule,
+    KeycloakModule,
   ],
   controllers: [AppController],
   providers: [
-    CalDavService,
     // This adds a global level authentication guard,
     // you can also have it scoped
     // if you like.

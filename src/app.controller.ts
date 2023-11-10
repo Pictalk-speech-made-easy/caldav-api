@@ -1,70 +1,134 @@
-import { Controller, Get, Post, UnauthorizedException } from '@nestjs/common';
-import { CalDavService } from 'src/caldav.service';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  ParseArrayPipe,
+  Post,
+  UnauthorizedException,
+  UsePipes,
+  ValidationPipe,
+} from '@nestjs/common';
 import { AuthenticatedUser, Public } from 'nest-keycloak-connect';
-import { HttpService } from '@nestjs/axios';
-import * as bcrypt from 'bcrypt';
-import { ConfigService } from '@nestjs/config';
-import * as querystring from 'querystring';
-import { lastValueFrom } from 'rxjs';
-@Controller()
+import { KeycloakService } from './keycloak/keycloak.service';
+import { BaikalService } from './baikal/baikal.service';
+import { ShareCalendarDto } from './share.dto';
+import { CalendarInstance } from './entities/calendarinstance.entity';
+import { CreateCalendarAndInstanceDto } from './create-calendar.dto';
+
+@Controller('user')
 export class AppController {
   constructor(
-    private calDavService: CalDavService,
-    private readonly httpService: HttpService,
-    private configService: ConfigService,
+    private keycloakService: KeycloakService,
+    private baikalService: BaikalService,
   ) {}
 
-  @Public(false)
-  @Post()
+  @Post('/create')
   async createUserAndCalendar(@AuthenticatedUser() user: any): Promise<any> {
     if (!user) {
       throw new UnauthorizedException();
     }
+    const response = await this.keycloakService.addPictimePasswordToUser(user);
+    const calendarInstance = await this.baikalService.createUserAndCalendar(
+      user.email,
+      response.pictime_password,
+    );
+    await this.baikalService.shareCalendarWithUser(
+      calendarInstance.calendarid,
+      'principals/admin_caldav-api@pictalk.org',
+      1,
+    );
+    return response;
+  }
 
-    const password = await bcrypt.hash(user.email, 10);
+  @Post('/calendar')
+  @UsePipes(new ValidationPipe({ transform: true }))
+  async createCalendar(
+    @AuthenticatedUser() user: any,
+    @Body() createCalendarAndInstanceDto: CreateCalendarAndInstanceDto,
+  ): Promise<any> {
+    if (!user) {
+      throw new UnauthorizedException();
+    }
+    const userExists = await this.baikalService.isUserExisting(user.email);
+    if (!userExists) {
+      throw new UnauthorizedException();
+    }
 
-    // Get username and password from env variables
-    let response = await this.httpService.post(
-      'https://auth.picmind.org/realms/master/protocol/openid-connect/token',
-      querystring.stringify({
-        grant_type: 'password',
-        client_id: 'admin-cli',
-        username: this.configService.get<string>('KEYCLOAK_ADMIN_USERNAME'),
-        password: this.configService.get<string>('KEYCLOAK_ADMIN_PASSWORD'),
-      }),
-      {
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-        },
-      },
+    // Use createCalendarAndInstanceDto to populate a temporary the calendar instance
+    const calendarInstance: Partial<CalendarInstance> = {
+      displayname: createCalendarAndInstanceDto.calendarName,
+      calendarcolor: createCalendarAndInstanceDto.calendarColor,
+      timezone: createCalendarAndInstanceDto.calendarTimeZone,
+    };
+
+    const response = await this.baikalService.createCalendarAndInstance(
+      'principals/' + user.email,
+      calendarInstance,
     );
-    const tokenResponse = await lastValueFrom(response);
-    response = this.httpService.get(
-      `https://auth.picmind.org/admin/realms/master/users/?username=${user.email}&exact=true`,
-      {
-        headers: {
-          Authorization: `Bearer ${tokenResponse.data.access_token}`,
-          'Content-Type': 'application/json',
-        },
-      },
+    return response;
+  }
+
+  @Delete('/calendar/:calendarUri')
+  async deleteCalendar(
+    @AuthenticatedUser() user: any,
+    @Param('calendarUri', ParseArrayPipe) calendarUri: string,
+  ): Promise<void> {
+    if (!user) {
+      throw new UnauthorizedException();
+    }
+    //TODO check if user exists --> Make it as a middleware
+    const userExists = await this.baikalService.isUserExisting(user.email);
+    if (!userExists) {
+      throw new UnauthorizedException();
+    }
+
+    //Check if calendar belongs to user
+    const calendarInstance =
+      await this.baikalService.getCalendarInstanceFromUri(calendarUri);
+    if (calendarInstance.principaluri != 'principals/' + user.email) {
+      throw new UnauthorizedException();
+    }
+
+    //Delete calendar
+    await this.baikalService.deleteCalendarAndInstances(
+      'principals/' + user.email,
+      calendarUri,
     );
-    const userResponse = await lastValueFrom(response);
-    await this.calDavService.createUserAndCalendar(user.email, password);
-    const atttributesResponse = this.httpService.put(
-      `https://auth.picmind.org/admin/realms/master/users/${userResponse.data[0].id}`,
-      {
-        "attributes": {
-          "pictime_password": [password],
-        },
-      },
-      {
-        headers: {
-          Authorization: `Bearer ${tokenResponse.data.access_token}`,
-          'Content-Type': 'application/json',
-        },
-      },
+    return;
+  }
+
+  @Post('/share')
+  @UsePipes(new ValidationPipe({ transform: true }))
+  async shareCalendar(
+    @AuthenticatedUser() user: any,
+    @Body() shareCalendarDto: ShareCalendarDto,
+  ): Promise<void> {
+    const calendarInstance =
+      await this.baikalService.getCalendarInstanceFromUri(
+        shareCalendarDto.calendarUri,
+      );
+
+    // Check if the calendar belongs to the user
+    if (calendarInstance.principaluri != 'principals/' + user.email) {
+      throw new UnauthorizedException();
+    }
+
+    // Check if the users getting shared with exist and filter out the ones that don't
+    shareCalendarDto.shareWith = shareCalendarDto.shareWith.filter(
+      async (email) => this.baikalService.isUserExisting(email),
     );
-    await lastValueFrom(atttributesResponse);
-    return {pictime_password: password};
+
+    // Share the calendar with the users
+    for (const email of shareCalendarDto.shareWith) {
+      await this.baikalService.shareCalendarWithUser(
+        calendarInstance.calendarid,
+        'principals/' + email,
+        shareCalendarDto.access,
+      );
+    }
+
+    return;
   }
 }

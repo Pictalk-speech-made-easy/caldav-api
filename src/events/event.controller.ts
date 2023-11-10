@@ -6,7 +6,7 @@ import { DavClientService } from 'src/dav-client/davclient.service';
 @Controller('events')
 @Public(false)
 export class EventController {
-  constructor(private davclientService: DavClientService) {}
+  constructor() {}
 
   @Get()
   async getRange(
@@ -14,8 +14,6 @@ export class EventController {
     @Query(new ValidationPipe({ transform: true }))
     rangeDto: GetRangeDto,
   ): Promise<Event[]> {
-    const client = await this.davclientService.getClient();
-    console.log(client);
     return [];
   }
 
