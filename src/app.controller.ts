@@ -7,6 +7,7 @@ import {
   ParseArrayPipe,
   Post,
   UnauthorizedException,
+  UseGuards,
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
@@ -16,6 +17,7 @@ import { BaikalService } from './baikal/baikal.service';
 import { ShareCalendarDto } from './share.dto';
 import { CalendarInstance } from './entities/calendarinstance.entity';
 import { CreateCalendarAndInstanceDto } from './create-calendar.dto';
+import { BaikalUserGuard } from './baikal.guard';
 
 @Controller('user')
 export class AppController {
@@ -43,6 +45,7 @@ export class AppController {
   }
 
   @Post('/calendar')
+  @UseGuards(BaikalUserGuard)
   @UsePipes(new ValidationPipe({ transform: true }))
   async createCalendar(
     @AuthenticatedUser() user: any,
@@ -51,11 +54,6 @@ export class AppController {
     if (!user) {
       throw new UnauthorizedException();
     }
-    const userExists = await this.baikalService.isUserExisting(user.email);
-    if (!userExists) {
-      throw new UnauthorizedException();
-    }
-
     // Use createCalendarAndInstanceDto to populate a temporary the calendar instance
     const calendarInstance: Partial<CalendarInstance> = {
       displayname: createCalendarAndInstanceDto.calendarName,
@@ -70,17 +68,13 @@ export class AppController {
     return response;
   }
 
+  @UseGuards(BaikalUserGuard)
   @Delete('/calendar/:calendarUri')
   async deleteCalendar(
     @AuthenticatedUser() user: any,
     @Param('calendarUri', ParseArrayPipe) calendarUri: string,
   ): Promise<void> {
     if (!user) {
-      throw new UnauthorizedException();
-    }
-    //TODO check if user exists --> Make it as a middleware
-    const userExists = await this.baikalService.isUserExisting(user.email);
-    if (!userExists) {
       throw new UnauthorizedException();
     }
 
