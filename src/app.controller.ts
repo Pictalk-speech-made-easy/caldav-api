@@ -26,7 +26,7 @@ export class AppController {
     private baikalService: BaikalService,
   ) {}
 
-  @Post('/create')
+  @Post('')
   async createUserAndCalendar(@AuthenticatedUser() user: any): Promise<any> {
     if (!user) {
       throw new UnauthorizedException();

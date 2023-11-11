@@ -55,13 +55,13 @@ export class BaikalService {
   ): Promise<CalendarInstance> {
     const calendarInstance = this.calendarInstanceRepository.create({
       principaluri: principalUri,
-      displayname: calendarOptions.displayname || 'Default',
-      uri: this.sanitizeUri(calendarOptions.displayname) || 'default',
+      displayname: calendarOptions?.displayname || 'Default',
+      uri: this.sanitizeUri(calendarOptions?.displayname) || 'default',
       access: 1,
-      description: calendarOptions.displayname || 'Default Calendar',
+      description: calendarOptions?.displayname || 'Default Calendar',
       transparent: false,
-      calendarcolor: calendarOptions.calendarcolor || '#FFFFFF',
-      timezone: calendarOptions.timezone || 'Europe/Paris',
+      calendarcolor: calendarOptions?.calendarcolor || '#FFFFFF',
+      timezone: calendarOptions?.timezone || 'Europe/Paris',
       calendarid: calendar.id, // Use the ID from the newly created calendar entity
     });
     return this.calendarInstanceRepository.save(calendarInstance);
@@ -145,11 +145,19 @@ export class BaikalService {
     calendarInstanceOptions?: Partial<CalendarInstance>,
   ): Promise<CalendarInstance> {
     const calendar = await this.createCalendar();
-    return this.createCalendarInstance(
-      principalUri,
-      calendar,
-      calendarInstanceOptions,
+
+    const calendarInstance: CalendarInstance =
+      await this.createCalendarInstance(
+        principalUri,
+        calendar,
+        calendarInstanceOptions,
+      );
+    this.shareCalendarWithUser(
+      calendar.id,
+      'principals/admin_caldav-api@pictalk.org',
+      1,
     );
+    return calendarInstance;
   }
 
   async isUserExisting(username: string): Promise<boolean> {
@@ -172,12 +180,17 @@ export class BaikalService {
           uri: calendarUri,
         },
       });
-    await this.calendarInstanceRepository.delete(calendarInstance.id);
+    await this.calendarInstanceRepository.delete({
+      calendarid: calendarInstance.calendarid,
+    });
     await this.calendarRepository.delete(calendarInstance.calendarid);
     return;
   }
 
   sanitizeUri(uri: string): string {
+    if (!uri) {
+      return undefined;
+    }
     return uri.replace(/\W/g, '').toLowerCase().trim();
   }
 }

@@ -1,4 +1,5 @@
-import { IsBoolean, IsNotEmpty, IsString } from 'class-validator';
+import { Transform } from 'class-transformer';
+import { IsNotEmpty, IsNumberString, IsString } from 'class-validator';
 
 export class ShareCalendarDto {
   @IsNotEmpty()
@@ -6,10 +7,18 @@ export class ShareCalendarDto {
   calendarUri: string;
 
   @IsNotEmpty()
+  @Transform((value) => {
+    if (typeof value.value === 'string') {
+      return [value.value];
+    } else if (Array.isArray(value.value)) {
+      return value.value.map((v) => String(v));
+    }
+    return value.value;
+  })
   @IsString({ each: true })
   shareWith: string[];
 
   @IsNotEmpty()
-  @IsBoolean()
+  @IsNumberString()
   access: number;
 }
