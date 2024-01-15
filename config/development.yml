@@ -1,4 +1,4 @@
 db_MYSQL:
   host: '127.0.0.1'
-  username: 'root'
-  password: 'mysqlroot'
+  username: 'baikal'
+  password: 'baikal_password'
