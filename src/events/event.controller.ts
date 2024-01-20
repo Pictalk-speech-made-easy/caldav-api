@@ -9,7 +9,7 @@ import { AuthenticatedUser, Public } from 'nest-keycloak-connect';
 import { GetRangeDto } from './get.range.dto';
 import { DavClientService } from 'src/dav-client/davclient.service';
 import { BaikalUserGuard } from 'src/baikal.guard';
-import { DAVCalendar, DAVClient } from 'tsdav';
+import { DAVCalendar, DAVClient, DAVObject } from 'tsdav';
 import { UserDto } from 'src/keycloak/user.dto';
 
 @Controller('events')
@@ -22,37 +22,7 @@ export class EventController {
     @AuthenticatedUser() user: UserDto,
     @Query(new ValidationPipe({ transform: true }))
     rangeDto: GetRangeDto,
-  ): Promise<Event[]> {
-    const davClient: DAVClient = await this.davclientService.getClient();
-    const calendars: DAVCalendar[] = await davClient.fetchCalendars();
-    console.log(calendars);
-    const filteredCalendars = calendars.find(
-      (calendar) =>
-        calendar.description ===
-        'principals/' + user.preferred_username + '-' + rangeDto.calendarUri,
-    );
-    if (!filteredCalendars) {
-      return [];
-    }
-    davClient.fetchCalendarObjects({
-      calendar: filteredCalendars,
-      timeRange: {
-        start: rangeDto.startDate.toISOString(),
-        end: rangeDto.endDate.toISOString(),
-      },
-      expand: true,
-    });
-    return [];
-  }
-
-  @Get('recurrent')
-  async getRecurrent(
-    @AuthenticatedUser() user: any,
-    @Query(new ValidationPipe({ transform: true }))
-    rangeDto: GetRangeDto,
-  ): Promise<Event[]> {
-    console.log('Getting recurrent events');
-    console.log(rangeDto);
+  ): Promise<DAVObject[]> {
     const davClient: DAVClient = await this.davclientService.getClient();
     const calendars: DAVCalendar[] = await davClient.fetchCalendars();
     console.log(calendars);
@@ -70,11 +40,44 @@ export class EventController {
         start: rangeDto.startDate.toISOString(),
         end: rangeDto.endDate.toISOString(),
       },
-      expand: true,
+      expand: false,
     });
-    console.log(events);
+    return events;
+  }
 
-    return [];
+  @Get('recurrent')
+  async getRecurrent(
+    @AuthenticatedUser() user: any,
+    @Query(new ValidationPipe({ transform: true }))
+    rangeDto: GetRangeDto,
+  ): Promise<DAVObject[]> {
+    console.log('Getting recurrent events');
+    console.log(rangeDto);
+    const davClient: DAVClient = await this.davclientService.getClient();
+    const calendars: DAVCalendar[] = await davClient.fetchCalendars();
+    const filteredCalendars = calendars.find(
+      (calendar) =>
+        calendar.description ===
+        'principals/' + user.preferred_username + '-' + rangeDto.calendarUri,
+    );
+    if (!filteredCalendars) {
+      return [];
+    }
+    let events = await davClient.fetchCalendarObjects({
+      calendar: filteredCalendars,
+      timeRange: {
+        start: rangeDto.startDate.toISOString(),
+        end: rangeDto.endDate.toISOString(),
+      },
+      expand: false,
+    });
+
+    events = events.filter((event) => {
+      console.log(event.data);
+      console.log(event.data.includes('RRULE'));
+      return event.data.includes('RRULE');
+    });
+    return events;
   }
 
   @Get('full-day')
