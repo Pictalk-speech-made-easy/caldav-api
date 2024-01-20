@@ -18,6 +18,7 @@ import { ShareCalendarDto } from './share.dto';
 import { CalendarInstance } from './entities/calendarinstance.entity';
 import { CreateCalendarAndInstanceDto } from './create-calendar.dto';
 import { BaikalUserGuard } from './baikal.guard';
+import { UserDto } from './keycloak/user.dto';
 
 @Controller('user')
 export class AppController {
@@ -27,13 +28,15 @@ export class AppController {
   ) {}
 
   @Post('')
-  async createUserAndCalendar(@AuthenticatedUser() user: any): Promise<any> {
+  async createUserAndCalendar(
+    @AuthenticatedUser() user: UserDto,
+  ): Promise<any> {
     if (!user) {
       throw new UnauthorizedException();
     }
     const response = await this.keycloakService.addPictimePasswordToUser(user);
     const calendarInstance = await this.baikalService.createUserAndCalendar(
-      user.email,
+      user.preferred_username,
       response.pictime_password,
     );
     await this.baikalService.shareCalendarWithUser(

@@ -4,6 +4,7 @@ import { ConfigService } from '@nestjs/config';
 import * as bcrypt from 'bcrypt';
 import * as querystring from 'querystring';
 import { lastValueFrom } from 'rxjs';
+import { UserDto } from './user.dto';
 
 @Injectable()
 export class KeycloakService {
@@ -12,8 +13,12 @@ export class KeycloakService {
     private configService: ConfigService,
   ) {}
 
-  async addPictimePasswordToUser(user: any) {
-    const password = await bcrypt.hash(user.email, 10);
+  async addPictimePasswordToUser(user: UserDto) {
+    if (!user || typeof user.preferred_username !== 'string') {
+      console.log(user);
+      throw new Error('User email is required and must be a string');
+    }
+    const password = await bcrypt.hash(user.preferred_username, 10);
 
     // Get username and password from env variables
     let response = await this.httpService.post(
@@ -33,7 +38,7 @@ export class KeycloakService {
     const tokenResponse = await lastValueFrom(response);
     console.debug('Successfully got token');
     response = this.httpService.get(
-      `https://auth.picmind.org/admin/realms/master/users/?username=${user.email}&exact=true`,
+      `https://auth.picmind.org/admin/realms/master/users/?username=${user.preferred_username}&exact=true`,
       {
         headers: {
           Authorization: `Bearer ${tokenResponse.data.access_token}`,

@@ -121,7 +121,7 @@ export class BaikalService {
       uri: `shared-calendar-${calendarId}`, // Ensure this URI is unique per user
       calendarid: calendarId,
       access: access, // Access level would need to be set according to Baikal's specific encoding of ACLs
-      description: `Shared ${sharedCalendar.displayname} from ${sharedCalendar.principaluri}`,
+      description: `${sharedCalendar.principaluri}-${sharedCalendar.uri}`,
       transparent: false,
       calendarcolor: '#FFFFFF',
       timezone: 'Europe/Paris',
