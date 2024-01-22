@@ -11,12 +11,15 @@ import { DavClientService } from 'src/baikal/davclient.service';
 import { BaikalUserGuard } from 'src/guard/baikal.guard';
 import { DAVCalendar, DAVClient, DAVObject } from 'tsdav';
 import { UserDto } from 'src/keycloak/user.dto';
+import { ApiOperation, ApiTags } from '@nestjs/swagger';
 
+@ApiTags('events')
 @Controller('events')
 export class EventController {
   constructor(private davclientService: DavClientService) {}
 
   @Get()
+  @ApiOperation({ summary: 'Get calendar events from a range' })
   @UseGuards(BaikalUserGuard)
   async getRange(
     @AuthenticatedUser() user: UserDto,
@@ -46,6 +49,7 @@ export class EventController {
   }
 
   @Get('recurrent')
+  @ApiOperation({ summary: 'Get recurrent calendar events from a range' })
   @UseGuards(BaikalUserGuard)
   async getRecurrent(
     @AuthenticatedUser() user: any,

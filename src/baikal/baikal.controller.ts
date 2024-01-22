@@ -18,7 +18,9 @@ import { BaikalUserGuard } from 'src/guard/baikal.guard';
 import { KeycloakService } from 'src/keycloak/keycloak.service';
 import { UserDto } from 'src/keycloak/user.dto';
 import { BaikalService } from './baikal.service';
+import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 
+@ApiTags('user')
 @Controller('user')
 export class BaikalController {
   constructor(
@@ -27,6 +29,7 @@ export class BaikalController {
   ) {}
 
   @Post('')
+  @ApiOperation({ summary: 'Create a user and its default calendar' })
   async createUserAndCalendar(
     @AuthenticatedUser() user: UserDto,
   ): Promise<any> {
@@ -47,6 +50,7 @@ export class BaikalController {
   }
 
   @Post('/calendar')
+  @ApiOperation({ summary: 'Create a secondary calendar' })
   @UseGuards(BaikalUserGuard)
   @UsePipes(new ValidationPipe({ transform: true }))
   async createCalendar(
@@ -71,6 +75,7 @@ export class BaikalController {
   }
 
   @UseGuards(BaikalUserGuard)
+  @ApiOperation({ summary: 'Delete a calendar' })
   @Delete('/calendar/:calendarUri')
   async deleteCalendar(
     @AuthenticatedUser() user: any,
@@ -96,6 +101,7 @@ export class BaikalController {
   }
 
   @Post('/share')
+  @ApiOperation({ summary: 'Share a calendar' })
   @UseGuards(BaikalUserGuard)
   @UsePipes(new ValidationPipe({ transform: true }))
   async shareCalendar(
