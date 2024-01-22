@@ -36,6 +36,12 @@ export class BaikalController {
     if (!user) {
       throw new UnauthorizedException();
     }
+    const isExist = await this.baikalService.isUserExisting(
+      user.preferred_username,
+    );
+    if (isExist) {
+      return;
+    }
     const response = await this.keycloakService.addPictimePasswordToUser(user);
     const calendarInstance = await this.baikalService.createUserAndCalendar(
       user.preferred_username,
