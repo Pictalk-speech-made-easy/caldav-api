@@ -7,8 +7,8 @@ import {
 } from '@nestjs/common';
 import { AuthenticatedUser, Public } from 'nest-keycloak-connect';
 import { GetRangeDto } from './get.range.dto';
-import { DavClientService } from 'src/dav-client/davclient.service';
-import { BaikalUserGuard } from 'src/baikal.guard';
+import { DavClientService } from 'src/baikal/davclient.service';
+import { BaikalUserGuard } from 'src/guard/baikal.guard';
 import { DAVCalendar, DAVClient, DAVObject } from 'tsdav';
 import { UserDto } from 'src/keycloak/user.dto';
 
@@ -46,6 +46,7 @@ export class EventController {
   }
 
   @Get('recurrent')
+  @UseGuards(BaikalUserGuard)
   async getRecurrent(
     @AuthenticatedUser() user: any,
     @Query(new ValidationPipe({ transform: true }))
@@ -81,6 +82,7 @@ export class EventController {
   }
 
   @Get('full-day')
+  @UseGuards(BaikalUserGuard)
   getFullDay(@AuthenticatedUser() user: any): Event[] {
     // TODO: Implement logic to fetch all events
     return [];

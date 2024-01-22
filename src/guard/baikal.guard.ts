@@ -1,5 +1,5 @@
 import { Injectable, CanActivate, ExecutionContext } from '@nestjs/common';
-import { BaikalService } from './baikal/baikal.service';
+import { BaikalService } from '../baikal/baikal.service';
 
 @Injectable()
 export class BaikalUserGuard implements CanActivate {

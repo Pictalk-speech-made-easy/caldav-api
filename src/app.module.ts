@@ -1,5 +1,4 @@
 import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
 import {
   KeycloakConnectModule,
   ResourceGuard,
@@ -12,7 +11,6 @@ import { HttpModule } from '@nestjs/axios';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { typeOrmConfig } from './config/typeorm.config';
 import keycloakConfig from './config/keycloak.config';
-import { DavClientModule } from './dav-client/davclient.module';
 import { EventModule } from './events/event.module';
 import { BaikalModule } from './baikal/baikal.module';
 import { KeycloakModule } from './keycloak/keycloak.module';
@@ -22,12 +20,11 @@ import { KeycloakModule } from './keycloak/keycloak.module';
     ConfigModule.forRoot({ load: [keycloakConfig] }),
     KeycloakConnectModule.register(keycloakConfig()),
     TypeOrmModule.forRoot(typeOrmConfig),
-    DavClientModule,
     EventModule,
     BaikalModule,
     KeycloakModule,
   ],
-  controllers: [AppController],
+  controllers: [],
   providers: [
     // This adds a global level authentication guard,
     // you can also have it scoped

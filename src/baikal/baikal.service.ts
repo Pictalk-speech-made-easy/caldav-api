@@ -161,11 +161,13 @@ export class BaikalService {
   }
 
   async isUserExisting(username: string): Promise<boolean> {
+    console.log('Checking if user exists', username);
     const user = await this.userRepository.findOne({
       where: {
         username: username,
       },
     });
+    console.log(user);
     return user != null;
   }
 

@@ -1,4 +1,4 @@
-import { DavClientService } from 'src/dav-client/davclient.service';
+import { DavClientService } from 'src/baikal/davclient.service';
 import { Injectable } from '@nestjs/common';
 
 @Injectable()

@@ -1,27 +1,26 @@
 import {
-  Body,
   Controller,
-  Delete,
-  Get,
-  Param,
-  ParseArrayPipe,
   Post,
   UnauthorizedException,
   UseGuards,
   UsePipes,
   ValidationPipe,
+  Body,
+  Delete,
+  Param,
+  ParseArrayPipe,
 } from '@nestjs/common';
-import { AuthenticatedUser, Public } from 'nest-keycloak-connect';
-import { KeycloakService } from './keycloak/keycloak.service';
-import { BaikalService } from './baikal/baikal.service';
-import { ShareCalendarDto } from './share.dto';
-import { CalendarInstance } from './entities/calendarinstance.entity';
-import { CreateCalendarAndInstanceDto } from './create-calendar.dto';
-import { BaikalUserGuard } from './baikal.guard';
-import { UserDto } from './keycloak/user.dto';
+import { AuthenticatedUser } from 'nest-keycloak-connect';
+import { CreateCalendarAndInstanceDto } from 'src/dtos/create-calendar.dto';
+import { ShareCalendarDto } from 'src/dtos/share.dto';
+import { CalendarInstance } from 'src/entities/calendarinstance.entity';
+import { BaikalUserGuard } from 'src/guard/baikal.guard';
+import { KeycloakService } from 'src/keycloak/keycloak.service';
+import { UserDto } from 'src/keycloak/user.dto';
+import { BaikalService } from './baikal.service';
 
 @Controller('user')
-export class AppController {
+export class BaikalController {
   constructor(
     private keycloakService: KeycloakService,
     private baikalService: BaikalService,
@@ -97,6 +96,7 @@ export class AppController {
   }
 
   @Post('/share')
+  @UseGuards(BaikalUserGuard)
   @UsePipes(new ValidationPipe({ transform: true }))
   async shareCalendar(
     @AuthenticatedUser() user: any,
