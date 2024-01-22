@@ -1,27 +1,24 @@
-import { Controller, Get, Post, UnauthorizedException } from '@nestjs/common';
-import { CalDavService } from 'src/caldav.service';
-import { AuthenticatedUser, Public } from 'nest-keycloak-connect';
 import { HttpService } from '@nestjs/axios';
-import * as bcrypt from 'bcrypt';
+import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import * as bcrypt from 'bcrypt';
 import * as querystring from 'querystring';
 import { lastValueFrom } from 'rxjs';
-@Controller()
-export class AppController {
+import { UserDto } from './user.dto';
+
+@Injectable()
+export class KeycloakService {
   constructor(
-    private calDavService: CalDavService,
     private readonly httpService: HttpService,
     private configService: ConfigService,
   ) {}
 
-  @Public(false)
-  @Post()
-  async createUserAndCalendar(@AuthenticatedUser() user: any): Promise<any> {
-    if (!user) {
-      throw new UnauthorizedException();
+  async addPictimePasswordToUser(user: UserDto) {
+    if (!user || typeof user.preferred_username !== 'string') {
+      console.log(user);
+      throw new Error('User email is required and must be a string');
     }
-
-    const password = await bcrypt.hash(user.email, 10);
+    const password = await bcrypt.hash(user.preferred_username, 10);
 
     // Get username and password from env variables
     let response = await this.httpService.post(
@@ -39,8 +36,9 @@ export class AppController {
       },
     );
     const tokenResponse = await lastValueFrom(response);
+    console.debug('Successfully got token');
     response = this.httpService.get(
-      `https://auth.picmind.org/admin/realms/master/users/?username=${user.email}&exact=true`,
+      `https://auth.picmind.org/admin/realms/master/users/?username=${user.preferred_username}&exact=true`,
       {
         headers: {
           Authorization: `Bearer ${tokenResponse.data.access_token}`,
@@ -49,12 +47,12 @@ export class AppController {
       },
     );
     const userResponse = await lastValueFrom(response);
-    await this.calDavService.createUserAndCalendar(user.email, password);
+    console.debug('Successfully got user');
     const atttributesResponse = this.httpService.put(
       `https://auth.picmind.org/admin/realms/master/users/${userResponse.data[0].id}`,
       {
-        "attributes": {
-          "pictime_password": [password],
+        attributes: {
+          pictime_password: password,
         },
       },
       {
@@ -64,7 +62,13 @@ export class AppController {
         },
       },
     );
-    await lastValueFrom(atttributesResponse);
-    return {pictime_password: password};
+    try {
+      await lastValueFrom(atttributesResponse);
+    } catch (e) {
+      console.log(e);
+      throw new InternalServerErrorException("Couldn't update user");
+    }
+    console.debug('Successfully updated user');
+    return { pictime_password: password };
   }
 }

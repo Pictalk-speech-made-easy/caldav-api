@@ -5,10 +5,12 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const config = new DocumentBuilder()
-    .setTitle('Pictalk')
-    .setDescription('Pictalk API description')
-    .setVersion('2.0')
-    .addTag('Pictalk API')
+    .setTitle('CalDav API')
+    .setDescription(
+      'CalDav API is used to manage calendars and events. It allows calendar operations and also event sharing across Picmind apps. Get an auth bearer from Keycloak',
+    )
+    .addBearerAuth()
+    .setVersion('1.0')
     .build();
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document);
