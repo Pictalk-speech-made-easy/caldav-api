@@ -10,5 +10,6 @@ export const typeOrmConfig: TypeOrmModuleOptions = {
   username: process.env.MYSQL_USERNAME || dbConfig_MYSQL.username,
   password: process.env.MYSQL_PASSWORD || dbConfig_MYSQL.password,
   database: process.env.MYSQL_DB || dbConfig_MYSQL.database,
-  synchronize: parseInt(process.env.TYPEORM_SYNC) || dbConfig_MYSQL.synchronize,
+  synchronize:
+    process.env.TYPEORM_SYNC === 'true' || dbConfig_MYSQL.synchronize,
 };
