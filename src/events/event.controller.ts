@@ -32,7 +32,7 @@ export class EventController {
     const filteredCalendars = calendars.find(
       (calendar) =>
         calendar.description ===
-        'principals/' + user.preferred_username + '-' + rangeDto.calendarUri,
+        'principals/' + user.sub + '-' + rangeDto.calendarUri,
     );
     if (!filteredCalendars) {
       return [];
@@ -63,7 +63,7 @@ export class EventController {
     const filteredCalendars = calendars.find(
       (calendar) =>
         calendar.description ===
-        'principals/' + user.preferred_username + '-' + rangeDto.calendarUri,
+        'principals/' + user.sub + '-' + rangeDto.calendarUri,
     );
     if (!filteredCalendars) {
       return [];

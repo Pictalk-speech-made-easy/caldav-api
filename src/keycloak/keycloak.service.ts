@@ -14,11 +14,11 @@ export class KeycloakService {
   ) {}
 
   async addPictimePasswordToUser(user: UserDto) {
-    if (!user || typeof user.preferred_username !== 'string') {
+    if (!user || typeof user.sub !== 'string') {
       console.log(user);
       throw new Error('User email is required and must be a string');
     }
-    const password = await bcrypt.hash(user.preferred_username, 10);
+    const password = await bcrypt.hash(user.sub, 10);
 
     // Get username and password from env variables
     let response = await this.httpService.post(
@@ -37,19 +37,8 @@ export class KeycloakService {
     );
     const tokenResponse = await lastValueFrom(response);
     console.debug('Successfully got token');
-    response = this.httpService.get(
-      `https://auth.picmind.org/admin/realms/master/users/?username=${user.preferred_username}&exact=true`,
-      {
-        headers: {
-          Authorization: `Bearer ${tokenResponse.data.access_token}`,
-          'Content-Type': 'application/json',
-        },
-      },
-    );
-    const userResponse = await lastValueFrom(response);
-    console.debug('Successfully got user');
     const atttributesResponse = this.httpService.put(
-      `https://auth.picmind.org/admin/realms/master/users/${userResponse.data[0].id}`,
+      `https://auth.picmind.org/admin/realms/master/users/${user.sub}`,
       {
         attributes: {
           pictime_password: password,

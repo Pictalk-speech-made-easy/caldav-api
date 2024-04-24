@@ -37,14 +37,14 @@ export class BaikalController {
       throw new UnauthorizedException();
     }
     const isExist = await this.baikalService.isUserExisting(
-      user.preferred_username,
+      user.sub,
     );
     if (isExist) {
       return;
     }
     const response = await this.keycloakService.addPictimePasswordToUser(user);
     const calendarInstance = await this.baikalService.createUserAndCalendar(
-      user.preferred_username,
+      user.sub,
       response.pictime_password,
     );
     await this.baikalService.shareCalendarWithUser(
@@ -60,7 +60,7 @@ export class BaikalController {
   @UseGuards(BaikalUserGuard)
   @UsePipes(new ValidationPipe({ transform: true }))
   async createCalendar(
-    @AuthenticatedUser() user: any,
+    @AuthenticatedUser() user: UserDto,
     @Body() createCalendarAndInstanceDto: CreateCalendarAndInstanceDto,
   ): Promise<any> {
     if (!user) {
@@ -74,7 +74,7 @@ export class BaikalController {
     };
 
     const response = await this.baikalService.createCalendarAndInstance(
-      'principals/' + user.email,
+      'principals/' + user.sub,
       calendarInstance,
     );
     return response;
@@ -94,13 +94,13 @@ export class BaikalController {
     //Check if calendar belongs to user
     const calendarInstance =
       await this.baikalService.getCalendarInstanceFromUri(calendarUri);
-    if (calendarInstance.principaluri != 'principals/' + user.email) {
+    if (calendarInstance.principaluri != 'principals/' + user.sub) {
       throw new UnauthorizedException();
     }
 
     //Delete calendar
     await this.baikalService.deleteCalendarAndInstances(
-      'principals/' + user.email,
+      'principals/' + user.sub,
       calendarUri,
     );
     return;
@@ -120,7 +120,7 @@ export class BaikalController {
       );
 
     // Check if the calendar belongs to the user
-    if (calendarInstance.principaluri != 'principals/' + user.email) {
+    if (calendarInstance.principaluri != 'principals/' + user.sub) {
       throw new UnauthorizedException();
     }
 
