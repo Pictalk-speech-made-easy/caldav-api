@@ -111,7 +111,7 @@ export class BaikalController {
   @UseGuards(BaikalUserGuard)
   @UsePipes(new ValidationPipe({ transform: true }))
   async shareCalendar(
-    @AuthenticatedUser() user: any,
+    @AuthenticatedUser() user: UserDto,
     @Body() shareCalendarDto: ShareCalendarDto,
   ): Promise<void> {
     const calendarInstance =
@@ -126,14 +126,14 @@ export class BaikalController {
 
     // Check if the users getting shared with exist and filter out the ones that don't
     shareCalendarDto.shareWith = shareCalendarDto.shareWith.filter(
-      async (email) => this.baikalService.isUserExisting(email),
+      async (id) => this.baikalService.isUserExisting(id),
     );
 
     // Share the calendar with the users
-    for (const email of shareCalendarDto.shareWith) {
+    for (const id of shareCalendarDto.shareWith) {
       await this.baikalService.shareCalendarWithUser(
         calendarInstance.calendarid,
-        'principals/' + email,
+        'principals/' + id,
         shareCalendarDto.access,
       );
     }
