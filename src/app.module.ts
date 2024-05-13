@@ -15,6 +15,8 @@ import { EventModule } from './events/event.module';
 import { BaikalModule } from './baikal/baikal.module';
 import { KeycloakModule } from './keycloak/keycloak.module';
 import { SentryModule } from '@ntegral/nestjs-sentry';
+import * as Sentry from '@sentry/node';
+import { Integration } from '@sentry/types';
 
 @Module({
   imports: [
@@ -28,7 +30,11 @@ import { SentryModule } from '@ntegral/nestjs-sentry';
     SentryModule.forRoot({
       dsn: 'https://466ab28bebba4e1c9e0f2583cc9855cd@o1135783.ingest.us.sentry.io/4507248877240320',
       environment: process.env.NODE_ENV,
-      logLevels: ['debug']
+      logLevels: ['debug'],
+      integrations: [
+        new Sentry.Integrations.Http({ tracing: true })
+      ] as unknown as Integration[],
+
     }),
   ],
   controllers: [],

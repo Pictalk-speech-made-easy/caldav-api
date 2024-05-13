@@ -29,6 +29,8 @@
     "@nestjs/typeorm": "^9.0.1",
     "@ntegral/nestjs-sentry": "^4.0.1",
     "@sentry/node": "^7.114.0",
+    "@sentry/opentelemetry": "^7.114.0",
+    "@sentry/types": "^7.114.0",
     "@types/mysql": "^2.15.21",
     "axios": "^1.4.0",
     "bcrypt": "^5.1.0",
