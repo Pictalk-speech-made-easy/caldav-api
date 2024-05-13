@@ -14,6 +14,8 @@ import keycloakConfig from './config/keycloak.config';
 import { EventModule } from './events/event.module';
 import { BaikalModule } from './baikal/baikal.module';
 import { KeycloakModule } from './keycloak/keycloak.module';
+import { SentryModule } from '@ntegral/nestjs-sentry';
+
 @Module({
   imports: [
     HttpModule,
@@ -23,6 +25,11 @@ import { KeycloakModule } from './keycloak/keycloak.module';
     EventModule,
     BaikalModule,
     KeycloakModule,
+    SentryModule.forRoot({
+      dsn: 'https://466ab28bebba4e1c9e0f2583cc9855cd@o1135783.ingest.us.sentry.io/4507248877240320',
+      environment: process.env.NODE_ENV,
+      logLevels: ['debug']
+    }),
   ],
   controllers: [],
   providers: [

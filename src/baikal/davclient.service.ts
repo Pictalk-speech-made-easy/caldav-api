@@ -15,7 +15,7 @@ export class DavClientService {
       },
       authMethod: this.configService.get('DAV_AUTH_METHOD'),
       defaultAccountType: this.configService.get('DAV_ACCOUNT_TYPE'),
-    });
+    }); 
     this.client = new DAVClient({
       serverUrl: this.configService.get('DAV_SERVER_URL'),
       credentials: {
