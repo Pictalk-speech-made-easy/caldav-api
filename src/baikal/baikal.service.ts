@@ -4,7 +4,7 @@ import { Calendar } from 'src/entities/calendar.entity';
 import { CalendarInstance } from 'src/entities/calendarinstance.entity';
 import { Principal } from 'src/entities/principals.entity';
 import { User } from 'src/entities/users.entity';
-import { Repository } from 'typeorm';
+import { QueryRunner, Repository } from 'typeorm';
 import * as md5 from 'md5';
 import { DataSource } from 'typeorm';
 
@@ -22,36 +22,49 @@ export class BaikalService {
     private dataSource: DataSource,
   ) {}
 
-  async createUser(username: string, password: string): Promise<User> {
+  async createUser(username: string, password: string, queryRunner?: QueryRunner): Promise<User> {
     const digesta1 = md5(`${username}:BaikalDAV:${password}`);
     const user = this.userRepository.create({
       username,
       digesta1,
     });
-    return this.userRepository.save(user);
+    if (queryRunner) {
+      return queryRunner.manager.save(user);
+  } else {
+      return this.userRepository.save(user);
+  }
   }
 
-  async createPrincipal(username: string): Promise<Principal> {
+  async createPrincipal(username: string, queryRunner?: QueryRunner): Promise<Principal> {
     const principal = this.principalRepository.create({
       uri: `principals/${username}`,
       email: username,
       displayname: username,
     });
-    return this.principalRepository.save(principal);
+    if (queryRunner) {
+      return queryRunner.manager.save(principal);
+    } else {
+      return this.principalRepository.save(principal);
+    }
   }
 
-  async createCalendar(): Promise<Calendar> {
+  async createCalendar(queryRunner?: QueryRunner): Promise<Calendar> {
     const calendar = this.calendarRepository.create({
       synctoken: 1,
       components: 'VEVENT,VTODO,VJOURNAL',
     });
-    return this.calendarRepository.save(calendar);
+    if (queryRunner) {
+      return queryRunner.manager.save(calendar);
+    } else {
+      return this.calendarRepository.save(calendar);
+    }
   }
 
   async createCalendarInstance(
     principalUri: string,
     calendar: Calendar,
     calendarOptions?: Partial<CalendarInstance>,
+    queryRunner?: QueryRunner
   ): Promise<CalendarInstance> {
     const calendarInstance = this.calendarInstanceRepository.create({
       principaluri: principalUri,
@@ -64,7 +77,11 @@ export class BaikalService {
       timezone: calendarOptions?.timezone || 'Europe/Paris',
       calendarid: calendar.id, // Use the ID from the newly created calendar entity
     });
-    return this.calendarInstanceRepository.save(calendarInstance);
+    if (queryRunner) {
+      return queryRunner.manager.save(calendarInstance);
+    } else {
+      return this.calendarInstanceRepository.save(calendarInstance);
+    }
   }
 
   async createUserAndCalendar(
@@ -76,12 +93,14 @@ export class BaikalService {
     await queryRunner.startTransaction();
 
     try {
-      const user = await this.createUser(username, password);
-      const principal = await this.createPrincipal(username);
-      const calendar = await this.createCalendar();
+      const user = await this.createUser(username, password, queryRunner);
+      const principal = await this.createPrincipal(username, queryRunner);
+      const calendar = await this.createCalendar(queryRunner);
       const calendarInstance = await this.createCalendarInstance(
         principal.uri,
         calendar,
+        undefined,
+        queryRunner
       );
 
       // Here you would add the logic to share the calendar with the admin user
