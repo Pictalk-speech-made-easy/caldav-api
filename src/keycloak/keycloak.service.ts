@@ -40,6 +40,7 @@ export class KeycloakService {
     const atttributesResponse = this.httpService.put(
       `https://auth.picmind.org/admin/realms/master/users/${user.sub}`,
       {
+        email: user.email,
         attributes: {
           pictime_password: password,
         },

@@ -12,4 +12,5 @@ export class UserDto {
   sid: string;
   email_verified: boolean;
   preferred_username: string;
+  email?: string;
 }
