@@ -20,7 +20,7 @@ export class BaikalService {
     @InjectRepository(CalendarInstance)
     private calendarInstanceRepository: Repository<CalendarInstance>,
     private dataSource: DataSource,
-  ) {}
+  ) { }
 
   async createUser(username: string, password: string, queryRunner?: QueryRunner): Promise<User> {
     const digesta1 = md5(`${username}:BaikalDAV:${password}`);
@@ -30,9 +30,9 @@ export class BaikalService {
     });
     if (queryRunner) {
       return queryRunner.manager.save(user);
-  } else {
+    } else {
       return this.userRepository.save(user);
-  }
+    }
   }
 
   async createPrincipal(username: string, queryRunner?: QueryRunner): Promise<Principal> {
@@ -110,16 +110,16 @@ export class BaikalService {
       // the sharing logic is not included here
 
       await queryRunner.commitTransaction();
+      await queryRunner.release();
       return calendarInstance;
     } catch (err) {
       await queryRunner.rollbackTransaction();
+      await queryRunner.release();
       if (err.code === 'ER_DUP_ENTRY') {
         console.log('User already exists');
       } else {
         throw err;
       }
-    } finally {
-      await queryRunner.release();
     }
   }
 
